@@ -16,7 +16,7 @@ import time
 from bs4 import BeautifulSoup
 import urllib.parse
 import csv
-import datetime
+from datetime import datetime
 
 driver = webdriver.Chrome(service=ChromeService(ChromeDriverManager().install()))
 driver.maximize_window()
@@ -33,7 +33,7 @@ driver.close()
 
 f = open('Data/reports.csv', 'w', newline='',encoding='utf-8')
 writer = csv.writer(f)
-writer.writerow(['Type','Status','Priority','Resolution','Component','Assignee'])
+writer.writerow(['Type','Status','Priority','Resolution','Component','Assignee','Reporter','Create Date','Created Epoch'])
 
 
 specificCategorySoup = BeautifulSoup(page_source,"html.parser")
@@ -49,12 +49,13 @@ peoplesContainer=specificCategorySoup.find('div',{'id':'peoplemodule'})
 assignee=peoplesContainer.find('span',{'id':'assignee-val'}).getText().strip()
 reporter=peoplesContainer.find('span',{'id':'reporter-val'}).getText().strip()
 
-datesContainer=specificCategorySoup.find('div',{'id':'peoplemodule'})
-epoch_time = datetime.datetime(2021, 6, 9, 2, 0).timestamp()
-print("Converted epoch time:", epoch_time)
+datesContainer=specificCategorySoup.find('div',{'id':'datesmodule'})
+createdDate=datesContainer.find('span',{'data-name':'Created'}).find('time').getText()
+createdEpochTime = datetime.strptime('14/Dec/16 14:42','%d/%b/%y %H:%M').timestamp()
 
-print(type+','+status+','+priority+','+resolution+','+component+','+assignee+','+reporter)
-writer.writerow([type,status,priority,resolution,component,assignee,reporter])
+
+print(type+','+status+','+priority+','+resolution+','+component+','+assignee+','+reporter+','+createdDate)
+writer.writerow([type,status,priority,resolution,component,assignee,reporter,createdDate,createdEpochTime])
 
 # quit and close browser
 f.close()
